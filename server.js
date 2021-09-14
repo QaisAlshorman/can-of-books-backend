@@ -16,18 +16,18 @@ let BooksModel;
 main().catch(err => console.log(err));
 
 async function main() {
-  await mongoose.connect('mongodb://localhost:27017/Books');
+  await mongoose.connect(process.env.MONGO_URL);
   
-  const kittySchema = new mongoose.Schema({
+  const bookSchema = new mongoose.Schema({
     title: String,
     desciption: String,
     status: String,
     ownerEmail : String 
   });
   
-  BooksModel = mongoose.model('Books', kittySchema);
+  BooksModel = mongoose.model('Books', bookSchema);
   
-  seedData();
+  // seedData();
 }
 
 //seeding a data function 
@@ -51,7 +51,7 @@ async function seedData()
   
   const The_Lord_of_the_Rings = new BooksModel({ 
     title: ' The Lord of the Rings',
-    catBreed: 'The heir to the throne of Gondor. Though Aragorn is the rightful king of Gondor, he travels under an assumed identity at the beginning of the trilogy: he is a ranger, known as Strider. The fact that he is not upon the throne reveals the weak state of the kingdoms of men. As the trilogy proceeds, Aragorn shows himself to be a noble leader with a pure heart. He is relatively unaffected by desire for the ring and routinely throws himself in harm’s way to ensure the fellowship’s survival. In love with the elf princess Arwen, he fights for her survival and for the successful return of the ring to Mordor. He becomes increasingly comfortable asserting his royal identity, but only when he addresses the men of the mountain in The Return of the King does he actually declare himself king of Gondor. By the time he is crowned king at the end of the final film, he has proven himself to be a worthy leader.',
+    desciption: 'The heir to the throne of Gondor. Though Aragorn is the rightful king of Gondor, he travels under an assumed identity at the beginning of the trilogy: he is a ranger, known as Strider. The fact that he is not upon the throne reveals the weak state of the kingdoms of men. As the trilogy proceeds, Aragorn shows himself to be a noble leader with a pure heart. He is relatively unaffected by desire for the ring and routinely throws himself in harm’s way to ensure the fellowship’s survival. In love with the elf princess Arwen, he fights for her survival and for the successful return of the ring to Mordor. He becomes increasingly comfortable asserting his royal identity, but only when he addresses the men of the mountain in The Return of the King does he actually declare himself king of Gondor. By the time he is crowned king at the end of the final film, he has proven himself to be a worthy leader.',
     status: 'best sales',
     ownerEmail :  'qaishorman20@gmail.com'
   });
@@ -65,7 +65,10 @@ async function seedData()
 
 //Routes
 server.get('/', homeHandler);
-server.get('/Books',getBooksHandler);
+server.get('/getBooks',getBooksHandler);
+server.get('/books',seedData);
+server.post('/addBooks',addBooksHandler);
+server.delete('/deleteBooks/:id', deleteBookHandler);
 
 //Functions Handlers
 function homeHandler(req,res){
@@ -89,6 +92,30 @@ function getBooksHandler(req,res){
   })
 }
 
+async function addBooksHandler(req,res){
+  console.log(req.body);
+  
+  const {title, status, ownerEmail} = req.body;
+  await KittenModel.create({ 
+    title: title,
+    status: status,
+      ownerEmail: ownerEmail
+  });
+}
+function deleteBookHandler(req, res) {
+
+  const bookID= req.params.id
+  const email = req.query.email
+
+  BooksModel.deleteOne({_id:bookID},(err,result)=>{
+      BooksModel.find({ email: email }, (error, result) => {
+
+          res.send(result);
+  
+      })
+  })
+  
+}
 server.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
 })
