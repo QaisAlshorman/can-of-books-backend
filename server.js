@@ -6,8 +6,7 @@ require('dotenv').config();
 
 const server = express();
 server.use(cors());
-
-app.use(express.json());
+server.use(express.json());
 
 const PORT = process.env.PORT;
 
@@ -92,21 +91,25 @@ function getBooksHandler(req, res) {
 }
 
 async function addBooksHandler(req, res) {
-  // console.log(req.body);
+  console.log(req.body);
 
-  const { title, status, ownerEmail } = req.body;
+  const { title, status,desciption, ownerEmail } = req.body;
   await BooksModel.create({
     title: title,
     status: status,
     desciption: desciption,
-    ownerEmail: email
-  });
-  BooksModel.find({ ownerEmail: email }, (error, result) => {
+    ownerEmail: ownerEmail,
+
+    
+  })
+  BooksModel.find({ ownerEmail:ownerEmail }, (err, result) => {
     if (err) {
-      console.log("error in try in again")
-    } else { res.send(result.data) }
-  }
-  );
+      console.log(err);
+    }
+    else {
+      res.send(result);
+    }
+  })
 }
 function deleteBookHandler(req, res) {
 
